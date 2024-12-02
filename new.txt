@@ -1,0 +1,95 @@
+import React, { useEffect, useState } from 'react';
+
+export async function getStaticProps() {
+  const res = await fetch('https://dummyjson.com/products');
+  const data = await res.json();
+  if (!data || !data.products) {
+    return { props: { products: [] } };
+  }
+  return {
+    props: {
+      products: data.products || [],
+    },
+    revalidate: 10,
+  };
+}
+// { products }
+const Card = ()=> {
+  const [data, setData] = useState();
+
+  const handleData = async ()=>{
+    fetch('https://dummyjson.com/products').then((res)=>{
+      return res.json();
+    }).then((dt)=>{
+      console.log(dt);
+      setData(dt);
+    });
+  }
+  useEffect(()=>{
+    handleData();
+  }, [])
+  // if(res){
+  //   setData(res.json)
+  // }
+  // const data = await res.json();
+  // if (!data || !data.products) {
+  //   return { props: { products: [] } };
+  // }
+  // return {
+  //   props: {
+  //     products: data.products || [],
+  //   },
+  //   revalidate: 10,
+  // };
+  console.log(data)
+  if (!data) {
+    return <p>No products available</p>;
+  }
+
+  return (
+    <div>
+      <h1>Welcome to Our Store</h1>
+      <div className="product-list">
+        {data.products.map((product) => (
+          <div key={product.id} className="product-card">
+            <img src={product.image} alt={product.name} />
+            <h3>{product.name}</h3>
+            <p>{product.description}</p>
+            <p><strong>${product.price}</strong></p>
+          </div>
+        ))}
+      </div>
+
+      <style jsx>{`
+        .product-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
+        }
+
+        .product-card {
+          border: 1px solid #ddd;
+          padding: 16px;
+          width: 200px;
+          text-align: center;
+        }
+
+        .product-card img {
+          width: 100%;
+          height: auto;
+        }
+
+        .product-card h3 {
+          font-size: 18px;
+          margin: 8px 0;
+        }
+
+        .product-card p {
+          font-size: 14px;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default Card;
